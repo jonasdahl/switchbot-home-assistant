@@ -1,4 +1,8 @@
-FROM node:17.8.0
+FROM node:buster
+
+RUN apt update
+RUN apt install bluetooth bluez libbluetooth-dev libudev-dev -y
+
 ENV NODE_ENV=production
 
 WORKDIR /app
@@ -11,4 +15,6 @@ COPY . .
 
 RUN npm run build
 
-CMD [ "node", "dist/index.js" ]
+USER root
+
+CMD [ "sudo", "node", "dist/index.js" ]

@@ -15,6 +15,4 @@ COPY . .
 
 RUN npm run build
 
-USER root
-
 CMD [ "node", "dist/index.js" ]

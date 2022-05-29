@@ -13,7 +13,6 @@ services:
 
   mosquitto:
     container_name: mosquitto
-    restart: unless-stopped
     image: eclipse-mosquitto:latest
     volumes:
       - ./mosquitto:/mosquitto/config
@@ -21,3 +20,9 @@ services:
     ports:
       - "1883:1883"
     restart: unless-stopped
+
+  switchbot-home-assistant:
+    restart: unless-stopped
+    build: "."
+    environment:
+      MQTT_URL: "tcp://mosquitto:1883"

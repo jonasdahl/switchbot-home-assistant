@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "minor_version": 1,
+    "key": "core.config_entries",
+    "data": {
+        "entries": [
+            {
+                "entry_id": "167a110c22d7f1874b1efe586f9186f4",
+                "version": 1,
+                "domain": "radio_browser",
+                "title": "Radio Browser",
+                "data": {},
+                "options": {},
+                "pref_disable_new_entities": false,
+                "pref_disable_polling": false,
+                "source": "onboarding",
+                "unique_id": null,
+                "disabled_by": null
+            },
+            {
+                "entry_id": "a6de6f45760b11baf8a5e7080285e148",
+                "version": 1,
+                "domain": "mqtt",
+                "title": "mosquitto",
+                "data": {
+                    "broker": "mosquitto",
+                    "port": 1883,
+                    "birth_message": {
+                        "topic": "homeassistant/status",
+                        "payload": "online",
+                        "qos": 0,
+                        "retain": false
+                    },
+                    "will_message": {
+                        "topic": "homeassistant/status",
+                        "payload": "offline",
+                        "qos": 0,
+                        "retain": false
+                    },
+                    "discovery": true
+                },
+                "options": {},
+                "pref_disable_new_entities": false,
+                "pref_disable_polling": false,
+                "source": "user",
+                "unique_id": null,
+                "disabled_by": null
+            }
+        ]
+    }
+}

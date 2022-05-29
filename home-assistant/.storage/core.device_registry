@@ -1,0 +1,70 @@
+{
+    "version": 1,
+    "minor_version": 3,
+    "key": "core.device_registry",
+    "data": {
+        "devices": [
+            {
+                "config_entries": [
+                    "b63b6d789be4957f8694ec1d072f46c5",
+                    "a6de6f45760b11baf8a5e7080285e148"
+                ],
+                "connections": [
+                    [
+                        "mac",
+                        "fa:86:3a:fd:8e:f7"
+                    ]
+                ],
+                "identifiers": [
+                    [
+                        "mqtt",
+                        "5de434f680188ab27edcbffcefc9117a"
+                    ]
+                ],
+                "manufacturer": "Switchbot",
+                "model": "WoCurtain",
+                "name": "WoCurtain",
+                "sw_version": null,
+                "hw_version": null,
+                "entry_type": null,
+                "id": "44500c149fa0c57da01fd891257c42d5",
+                "via_device_id": null,
+                "area_id": null,
+                "name_by_user": "H\u00f6gra gardinen",
+                "disabled_by": null,
+                "configuration_url": "https://www.switchbot.com/"
+            },
+            {
+                "config_entries": [
+                    "b63b6d789be4957f8694ec1d072f46c5",
+                    "a6de6f45760b11baf8a5e7080285e148"
+                ],
+                "connections": [
+                    [
+                        "mac",
+                        "ef:dc:02:82:9f:e4"
+                    ]
+                ],
+                "identifiers": [
+                    [
+                        "mqtt",
+                        "10ea54eb3bb1fc2547b24816f13fe75e"
+                    ]
+                ],
+                "manufacturer": "Switchbot",
+                "model": "WoCurtain",
+                "name": "WoCurtain",
+                "sw_version": null,
+                "hw_version": null,
+                "entry_type": null,
+                "id": "35a927149cb4d087232d4e0be5bf7014",
+                "via_device_id": null,
+                "area_id": null,
+                "name_by_user": null,
+                "disabled_by": null,
+                "configuration_url": "https://www.switchbot.com/"
+            }
+        ],
+        "deleted_devices": []
+    }
+}

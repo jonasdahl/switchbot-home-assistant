@@ -17,4 +17,4 @@ RUN npm run build
 
 USER root
 
-CMD [ "sudo", "node", "dist/index.js" ]
+CMD [ "node", "dist/index.js" ]

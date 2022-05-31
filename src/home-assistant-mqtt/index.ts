@@ -1,4 +1,6 @@
+import { readFileSync } from "fs";
 import { connect, MqttClient } from "mqtt";
+import { join } from "path";
 import { logger } from "../utils/logger";
 import {
   HomeAssistantMqttBinarySensor,
@@ -12,7 +14,21 @@ export class HomeAssistantMqtt {
   private mqttClient: MqttClient;
 
   constructor({ url }: { url: string }) {
-    this.mqttClient = connect(url);
+    const extraFunParts = {
+      checkServerIdentity: () => {
+        return null;
+      },
+    };
+
+    this.mqttClient = connect({
+      ...extraFunParts,
+      protocol: "mqtts",
+      hostname: "localhost",
+      port: 8883,
+      cert: readFileSync(join(__dirname, "../../mosquitto/client.crt")),
+      ca: readFileSync(join(__dirname, "../../mosquitto/ca.crt")),
+      key: readFileSync(join(__dirname, "../../mosquitto/client.key")),
+    });
     this.mqttClient.on("error", (e) => {
       console.error("Error in MQTT client:", e);
     });

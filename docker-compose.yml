@@ -19,6 +19,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "1883:1883"
+      - "8883:8883"
     restart: unless-stopped
 
   switchbot-home-assistant:

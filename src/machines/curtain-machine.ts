@@ -4,14 +4,14 @@ import Switchbot, {
 } from "node-switchbot";
 import { assign, createMachine } from "xstate";
 import {
-  HomeAssistantMqtt,
-  HomeAssistantMqttDevice,
+  HomeAssistantMQTT,
+  HomeAssistantMQTTDevice,
 } from "../home-assistant-mqtt";
 import { logger } from "../utils/logger";
 
 type Context = {
   switchbotDevice: SwitchbotDeviceWoCurtain;
-  homeAssistantMqtt: HomeAssistantMqtt;
+  homeAssistantMqtt: HomeAssistantMQTT;
   switchbot: Switchbot;
 
   latestRssi: null | { time: Date; rssi: number };
@@ -240,7 +240,7 @@ export const curtainMachine = createMachine(
         logger.child({ device: id }).debug("Announcing device %s", id);
         const name = switchbotDevice.modelName;
 
-        const device: HomeAssistantMqttDevice = {
+        const device: HomeAssistantMQTTDevice = {
           model: modelName,
           connections: address ? [["mac", address]] : [],
           identifiers: id,

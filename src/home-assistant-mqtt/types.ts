@@ -77,7 +77,7 @@ export type BinarySensorDeviceClass =
 
 export type StateClass = "measurement" | "total" | "total_increasing";
 
-export type HomeAssistantMqttDevice = {
+export type HomeAssistantMQTTDevice = {
   configuration_url?: string;
   connections?: [ConnectionType: string, ConnectionIdentifier: string][];
   identifiers?: string | string[];
@@ -89,8 +89,8 @@ export type HomeAssistantMqttDevice = {
   via_device?: string;
 };
 
-export type HomeAssistantMqttSensor = HomeAssistantMqttAvailabilityConfig & {
-  device?: HomeAssistantMqttDevice;
+export type HomeAssistantMQTTSensor = HomeAssistantMQTTAvailabilityConfig & {
+  device?: HomeAssistantMQTTDevice;
   device_class?: SensorDeviceClass;
   enabled_by_default?: boolean;
   encoding?: string;
@@ -113,9 +113,9 @@ export type HomeAssistantMqttSensor = HomeAssistantMqttAvailabilityConfig & {
   value_template?: string;
 };
 
-export type HomeAssistantMqttBinarySensor =
-  HomeAssistantMqttAvailabilityConfig & {
-    device?: HomeAssistantMqttDevice;
+export type HomeAssistantMQTTBinarySensor =
+  HomeAssistantMQTTAvailabilityConfig & {
+    device?: HomeAssistantMQTTDevice;
     device_class?: BinarySensorDeviceClass;
     enabled_by_default?: boolean;
     encoding?: string;
@@ -138,9 +138,9 @@ export type HomeAssistantMqttBinarySensor =
     value_template?: string;
   };
 
-export type HomeAssistantMqttCover = HomeAssistantMqttAvailabilityConfig & {
+export type HomeAssistantMQTTCover = HomeAssistantMQTTAvailabilityConfig & {
   command_topic?: string;
-  device?: HomeAssistantMqttDevice;
+  device?: HomeAssistantMQTTDevice;
   device_class?: CoverDeviceClass;
   enabled_by_default?: boolean;
   encoding?: string;
@@ -182,7 +182,7 @@ export type HomeAssistantMqttCover = HomeAssistantMqttAvailabilityConfig & {
   value_template?: string;
 };
 
-export type HomeAssistantMqttAvailabilityConfig = (
+export type HomeAssistantMQTTAvailabilityConfig = (
   | {
       availability: {
         payload_available?: string;

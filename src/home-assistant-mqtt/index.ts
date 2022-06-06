@@ -1,36 +1,63 @@
 import { readFileSync } from "fs";
-import { connect, MqttClient } from "mqtt";
-import { join } from "path";
+import { connect, IClientOptions, MqttClient } from "mqtt";
 import { logger } from "../utils/logger";
 import {
-  HomeAssistantMqttBinarySensor,
-  HomeAssistantMqttCover,
-  HomeAssistantMqttSensor,
+  HomeAssistantMQTTBinarySensor,
+  HomeAssistantMQTTCover,
+  HomeAssistantMQTTSensor,
 } from "./types";
 
 export * from "./types";
 
-export class HomeAssistantMqtt {
+export class HomeAssistantMQTT {
   private mqttClient: MqttClient;
 
-  constructor({ url }: { url: string }) {
-    const extraFunParts = {
+  constructor({ mqtt }: { mqtt?: IClientOptions & { url?: string } } = {}) {
+    const extra = {
       checkServerIdentity: () => {
         return null;
       },
     };
 
-    this.mqttClient = connect({
-      ...extraFunParts,
-      protocol: "mqtts",
-      hostname: "localhost",
-      port: 8883,
-      cert: readFileSync(join(__dirname, "../../mosquitto/client.crt")),
-      ca: readFileSync(join(__dirname, "../../mosquitto/ca.crt")),
-      key: readFileSync(join(__dirname, "../../mosquitto/client.key")),
+    const url = mqtt?.url ?? process.env.MQTT_URL;
+    if (!url) {
+      throw new Error(
+        "HomeAssistantMQTT needs either MQTT_URL environment variable or mqtt.url in options"
+      );
+    }
+    logger.info("Connecting to MQTT url: %s", url);
+
+    const ca = mqtt?.ca
+      ? mqtt?.ca
+      : process.env.MQTT_CA_PATH
+      ? readFileSync(process.env.MQTT_CA_PATH)
+      : undefined;
+    logger.info("Using CA: %s", ca ? "yes" : "no");
+    const key = mqtt?.key
+      ? mqtt?.key
+      : process.env.MQTT_KEY_PATH
+      ? readFileSync(process.env.MQTT_KEY_PATH)
+      : undefined;
+    logger.info("Using Key: %s", key ? "yes" : "no");
+    const cert = mqtt?.cert
+      ? mqtt?.cert
+      : process.env.MQTT_CERT_PATH
+      ? readFileSync(process.env.MQTT_CERT_PATH)
+      : undefined;
+    logger.info("Using cert: %s", cert ? "yes" : "no");
+
+    this.mqttClient = connect(url, {
+      ...extra,
+      ...mqtt,
+      cert,
+      ca,
+      key,
     });
+    this.mqttClient.publish("homeassistantswitchbot/status", "started");
+
     this.mqttClient.on("error", (e) => {
-      console.error("Error in MQTT client:", e);
+      logger.error("Error in MQTT client:", e);
+      throw e;
     });
   }
 
@@ -59,7 +86,7 @@ export class HomeAssistantMqtt {
   }
 
   announceCover(
-    cover: HomeAssistantMqttCover & { unique_id: string },
+    cover: HomeAssistantMQTTCover & { unique_id: string },
     topic_?: string
   ) {
     const topic =
@@ -75,7 +102,7 @@ export class HomeAssistantMqtt {
   }
 
   announceSensor(
-    sensor: HomeAssistantMqttSensor & { unique_id: string },
+    sensor: HomeAssistantMQTTSensor & { unique_id: string },
     topic_?: string
   ) {
     const topic =
@@ -91,7 +118,7 @@ export class HomeAssistantMqtt {
   }
 
   announceBinarySensor(
-    sensor: HomeAssistantMqttBinarySensor & { unique_id: string },
+    sensor: HomeAssistantMQTTBinarySensor & { unique_id: string },
     topic_?: string
   ) {
     const topic =

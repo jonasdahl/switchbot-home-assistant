@@ -1,13 +1,13 @@
 import Switchbot, { Advertisement, AnySwitchbotDevice } from "node-switchbot";
 import { ActorRefFrom, assign, createMachine, spawn } from "xstate";
-import { HomeAssistantMqtt } from "../home-assistant-mqtt";
+import { HomeAssistantMQTT } from "../home-assistant-mqtt";
 import { logger } from "../utils/logger";
 import { curtainMachine } from "./curtain-machine";
 
 type Event = { type: "DEVICE_AD_RECEIVED"; advertisement: Advertisement };
 type Context = {
   switchbot: Switchbot;
-  homeAssistantMqtt: HomeAssistantMqtt;
+  homeAssistantMqtt: HomeAssistantMQTT;
   deviceActors: Record<string, ActorRefFrom<typeof curtainMachine>>;
 };
 

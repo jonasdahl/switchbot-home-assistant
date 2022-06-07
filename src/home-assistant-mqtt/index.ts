@@ -1,6 +1,5 @@
 import { readFileSync } from "fs";
 import { connect, MqttClient } from "mqtt";
-import { join } from "path";
 import { logger } from "../utils/logger";
 import {
   HomeAssistantMqttBinarySensor,
@@ -13,21 +12,41 @@ export * from "./types";
 export class HomeAssistantMqtt {
   private mqttClient: MqttClient;
 
-  constructor({ url }: { url: string }) {
-    const extraFunParts = {
-      checkServerIdentity: () => {
-        return null;
-      },
+  constructor({
+    url,
+    mqttCaPath,
+    mqttCertPath,
+    mqttKeyPath,
+    mqttProtocol,
+  }: {
+    url: string;
+    mqttCaPath?: string;
+    mqttCertPath?: string;
+    mqttKeyPath?: string;
+    mqttProtocol?: string;
+  }) {
+    const ca = mqttCaPath ? readFileSync(mqttCaPath) : undefined;
+    logger.info("Using CA: %s", ca ? "yes" : "no");
+    const cert = mqttCertPath ? readFileSync(mqttCertPath) : undefined;
+    logger.info("Using cert: %s", cert ? "yes" : "no");
+    const key = mqttKeyPath ? readFileSync(mqttKeyPath) : undefined;
+    logger.info("Using key: %s", key ? "yes" : "no");
+    const protocol =
+      (mqttProtocol ? (mqttProtocol as any) : undefined) ?? "mqtt";
+    logger.info("Protocol: %s", protocol);
+
+    const extra = {
+      // checkServerIdentity: () => {
+      //   return null;
+      // },
     };
 
-    this.mqttClient = connect({
-      ...extraFunParts,
-      protocol: "mqtts",
-      hostname: "localhost",
-      port: 8883,
-      cert: readFileSync(join(__dirname, "../../mosquitto/client.crt")),
-      ca: readFileSync(join(__dirname, "../../mosquitto/ca.crt")),
-      key: readFileSync(join(__dirname, "../../mosquitto/client.key")),
+    this.mqttClient = connect(url, {
+      ...extra,
+      protocol,
+      cert,
+      ca,
+      key,
     });
     this.mqttClient.on("error", (e) => {
       console.error("Error in MQTT client:", e);

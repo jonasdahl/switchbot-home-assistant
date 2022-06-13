@@ -87,22 +87,30 @@ export const curtainMachine = createMachine(
   {
     actions: {
       open: async ({ switchbotDevice }) => {
-        await switchbotDevice.open();
+        tryRepeatedly(() => switchbotDevice.open()).catch((e) =>
+          logger.error(e)
+        );
       },
 
       close: async ({ switchbotDevice }) => {
-        await switchbotDevice.close();
+        tryRepeatedly(() => switchbotDevice.close()).catch((e) =>
+          logger.error(e)
+        );
       },
 
       pause: async ({ switchbotDevice }) => {
-        await switchbotDevice.pause();
+        tryRepeatedly(() => switchbotDevice.pause()).catch((e) =>
+          logger.error(e)
+        );
       },
 
       moveToPosition: async ({ switchbotDevice }, { position }) => {
         if (position < 0 || position > 100) {
           throw new Error("Invalid position: " + position);
         }
-        await switchbotDevice.runToPos(position);
+        tryRepeatedly(() => switchbotDevice.runToPos(position)).catch((e) =>
+          logger.error(e)
+        );
       },
 
       saveRssiInContext: assign(({}, { advertisement }) => {
@@ -429,4 +437,19 @@ function getCommand(payload: string) {
   }
   logger.error("Unrecognized command payload: " + payload);
   return null;
+}
+
+async function tryRepeatedly<T>(fn: () => Promise<T>): Promise<T> {
+  const numTries = 3;
+  let lastError: any = null;
+  for (let i = 0; i < numTries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastError = e;
+      logger.error("Failed to execute attempt " + i + 1 + ".");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+  throw lastError;
 }

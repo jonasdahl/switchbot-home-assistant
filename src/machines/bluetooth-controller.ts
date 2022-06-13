@@ -13,51 +13,38 @@ export const bluetoothControllerMachine = createMachine(
     },
     initial: "unknown",
     invoke: { src: "listenForStateChanges" },
-    entry: "started",
+    entry: "onStarted",
+    context: { noble },
     states: {
       unknown: {
         always: [
           { cond: "stateIsPoweredOn", target: "on" },
           { cond: "stateIsPoweredOff", target: "off" },
         ],
-        on: {
-          POWERED_ON: "on",
-          POWERED_OFF: "off",
-        },
+        on: { POWERED_ON: "on", POWERED_OFF: "off" },
       },
       on: {
-        entry: "poweredOn",
-        on: {
-          POWERED_OFF: "off",
-        },
-        invoke: {
-          src: "on",
-          onDone: "error",
-          onError: { target: "error" },
-        },
+        entry: "onPoweredOn",
+        on: { POWERED_OFF: "off" },
+        invoke: { src: "discovery", onDone: "error", onError: "error" },
       },
-      off: {
-        entry: "poweredOff",
-        on: {
-          POWERED_ON: "on",
-        },
-      },
-      error: { type: "final", entry: "error" },
+      off: { entry: "onPoweredOff", on: { POWERED_ON: "on" } },
+      error: { type: "final", entry: "onError" },
     },
   },
   {
     actions: {
-      error: () => {},
-      poweredOff: () => {},
-      poweredOn: () => {},
-      started: () => {},
+      onError: () => {},
+      onPoweredOff: () => {},
+      onPoweredOn: () => {},
+      onStarted: () => {},
     },
     guards: {
       stateIsPoweredOff: (c) => c.noble.state === "poweredOff",
       stateIsPoweredOn: (c) => c.noble.state === "poweredOn",
     },
     services: {
-      on: () => () => {},
+      discovery: () => () => {},
       listenForStateChanges: (c) => (send) => {
         const handler = (state: string) => {
           if (state === "poweredOn") {

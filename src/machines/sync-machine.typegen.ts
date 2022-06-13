@@ -5,6 +5,8 @@ export interface Typegen0 {
   eventsCausingActions: {
     createOrUpdateDeviceActors: "done.invoke.sync.discoverDevices:invocation[0]";
     handleDeviceAdvertisement: "DEVICE_AD_RECEIVED";
+    onDiscoveredDevices: "xstate.init";
+    onDiscoverDevices: "xstate.init";
   };
   internalEvents: {
     "done.invoke.sync.discoverDevices:invocation[0]": {
@@ -19,7 +21,7 @@ export interface Typegen0 {
     scan: "done.invoke.sync.idle:invocation[0]";
   };
   missingImplementations: {
-    actions: never;
+    actions: "onDiscoveredDevices" | "onDiscoverDevices";
     services: never;
     guards: never;
     delays: never;
@@ -28,7 +30,9 @@ export interface Typegen0 {
     discovery: "xstate.init";
     scan: "done.invoke.sync.discoverDevices:invocation[0]";
   };
-  eventsCausingGuards: {};
+  eventsCausingGuards: {
+    actorIsKnown: "DEVICE_AD_RECEIVED";
+  };
   eventsCausingDelays: {};
   matchesStates: "discoverDevices" | "idle" | "done" | "error";
   tags: never;

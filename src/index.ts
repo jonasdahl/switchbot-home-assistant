@@ -9,16 +9,15 @@ const switchbot = new Switchbot({ noble });
 const homeAssistantMqtt = new HomeAssistantMQTT();
 
 const machine = interpret(
-  syncMachine.withContext({ switchbot, homeAssistantMqtt, deviceActors: {} })
+  syncMachine
+    .withContext({ switchbot, homeAssistantMqtt, deviceActors: {} })
+    .withConfig({
+      actions: {
+        onDiscoverDevices: () => logger.debug("Discovering devices..."),
+        onDiscoveredDevices: () => logger.debug("Device discovery done."),
+      },
+    })
 );
-
-machine.onEvent((event) => {
-  logger.info("Event: '%s'", event.type);
-});
-
-machine.onTransition((s) => {
-  logger.info("Transitioned to state: '%s'", s.value);
-});
 
 machine.start();
 logger.info("Setup complete, machine started");

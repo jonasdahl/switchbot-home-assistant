@@ -1,7 +1,6 @@
 import Switchbot, { Advertisement, AnySwitchbotDevice } from "node-switchbot";
 import { ActorRefFrom, assign, createMachine, spawn } from "xstate";
 import { HomeAssistantMQTT } from "../home-assistant-mqtt";
-import { logger } from "../utils/logger";
 import { curtainMachine } from "./curtain-machine";
 
 type Event = { type: "DEVICE_AD_RECEIVED"; advertisement: Advertisement };
@@ -26,6 +25,8 @@ export const syncMachine = createMachine(
     tsTypes: {} as import("./sync-machine.typegen").Typegen0,
     states: {
       discoverDevices: {
+        entry: "onDiscoverDevices",
+        exit: "onDiscoveredDevices",
         invoke: {
           src: "discovery",
           onDone: { target: "idle", actions: "createOrUpdateDeviceActors" },
@@ -35,7 +36,9 @@ export const syncMachine = createMachine(
       idle: {
         invoke: { src: "scan", onDone: { target: "done" } },
         on: {
-          DEVICE_AD_RECEIVED: { actions: "handleDeviceAdvertisement" },
+          DEVICE_AD_RECEIVED: [
+            { cond: "actorIsKnown", actions: "handleDeviceAdvertisement" },
+          ],
         },
       },
       done: { type: "final" },
@@ -43,19 +46,16 @@ export const syncMachine = createMachine(
     },
   },
   {
+    guards: {
+      actorIsKnown: ({ deviceActors }, { advertisement }) => {
+        return !!deviceActors[advertisement.id];
+      },
+    },
     actions: {
       handleDeviceAdvertisement: ({ deviceActors }, { advertisement }) => {
         const actor = deviceActors[advertisement.id];
         if (!actor) {
-          logger.error(
-            "Got advertisement from undiscovered device %s, this should probably create a new actor right?",
-            advertisement.id
-          );
-          logger.info(
-            "Available IDs are %s",
-            JSON.stringify(Object.keys(deviceActors))
-          );
-          return;
+          throw new Error("Actor is not in context.");
         }
         actor.send({ type: "DEVICE_AD_RECEIVED", advertisement });
       },
@@ -75,7 +75,6 @@ export const syncMachine = createMachine(
                 switchbotDevice: device,
                 homeAssistantMqtt,
                 switchbot,
-
                 latestRssi: null,
                 latestBattery: null,
                 latestCalibration: null,
@@ -83,15 +82,6 @@ export const syncMachine = createMachine(
               }),
               { name: `device-${device.id}` }
             );
-            actor.subscribe((state) => {
-              logger
-                .child({ deviceId: device.id })
-                .info(
-                  "Actor state changed over %s: %s",
-                  state.transitions[state.transitions.length - 1]?.eventType,
-                  JSON.stringify(state.value)
-                );
-            });
             newActors[device.id] = actor;
           }
           return { deviceActors: newActors };

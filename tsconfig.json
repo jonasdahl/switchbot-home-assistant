@@ -9,5 +9,10 @@
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true
-  }
+  },
+  "include": [
+    "src/home-assistant-mqtt/**/*",
+    "src/index.ts",
+    "src/node-switchbot.d.ts"
+  ]
 }

@@ -1,26 +1,26 @@
 version: "3.7"
 
 services:
-  home-assistant:
-    container_name: home-assistant
-    image: homeassistant/home-assistant:latest
-    volumes:
-      - ./home-assistant:/config
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "8123:8123"
-    restart: unless-stopped
+  # home-assistant:
+  #   container_name: home-assistant
+  #   image: homeassistant/home-assistant:latest
+  #   volumes:
+  #     - ./home-assistant:/config
+  #     - /etc/localtime:/etc/localtime:ro
+  #   ports:
+  #     - "8123:8123"
+  #   restart: unless-stopped
 
-  mosquitto:
-    container_name: mosquitto
-    image: eclipse-mosquitto:latest
-    volumes:
-      - ./mosquitto:/mosquitto/config
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "1883:1883"
-      - "8883:8883"
-    restart: unless-stopped
+  # mosquitto:
+  #   container_name: mosquitto
+  #   image: eclipse-mosquitto:latest
+  #   volumes:
+  #     - ./mosquitto:/mosquitto/config
+  #     - /etc/localtime:/etc/localtime:ro
+  #   ports:
+  #     - "1883:1883"
+  #     - "8883:8883"
+  #   restart: unless-stopped
 
   switchbot-home-assistant:
     restart: unless-stopped

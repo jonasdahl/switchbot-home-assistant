@@ -447,7 +447,7 @@ async function tryRepeatedly<T>(fn: () => Promise<T>): Promise<T> {
       return await fn();
     } catch (e) {
       lastError = e;
-      logger.error("Failed to execute attempt " + i + 1 + ".");
+      logger.error("Failed to execute attempt " + (i + 1) + ".");
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }

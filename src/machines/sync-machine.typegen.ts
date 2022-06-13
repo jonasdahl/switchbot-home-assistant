@@ -3,10 +3,10 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   eventsCausingActions: {
-    createOrUpdateDeviceActors: "done.invoke.sync.discoverDevices:invocation[0]";
     handleDeviceAdvertisement: "DEVICE_AD_RECEIVED";
+    createOrUpdateDeviceActors: "done.invoke.sync.discoverDevices:invocation[0]";
     onDiscoveredDevices: "xstate.init";
-    onDiscoverDevices: "xstate.init";
+    onDiscoverDevices: "xstate.after(60000)#sync.idle";
   };
   internalEvents: {
     "done.invoke.sync.discoverDevices:invocation[0]": {
@@ -14,6 +14,7 @@ export interface Typegen0 {
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
+    "xstate.after(60000)#sync.idle": { type: "xstate.after(60000)#sync.idle" };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
@@ -27,7 +28,7 @@ export interface Typegen0 {
     delays: never;
   };
   eventsCausingServices: {
-    discovery: "xstate.init";
+    discovery: "xstate.after(60000)#sync.idle";
     scan: "done.invoke.sync.discoverDevices:invocation[0]";
   };
   eventsCausingGuards: {

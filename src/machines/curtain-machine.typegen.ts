@@ -12,24 +12,34 @@ export interface Typegen0 {
     close: "CLOSE";
     pause: "PAUSE";
     moveToPosition: "SET_POSITION";
-    announceHomeAssistantEntity: "xstate.after(60000)#(machine).periodicallyAnnounce.announce";
-    publishRssiData: "xstate.after(30000)#(machine).sendPeriodicData";
-    publishCalibrationStatusData: "xstate.after(30000)#(machine).sendPeriodicData";
-    publishBatteryData: "xstate.after(30000)#(machine).sendPeriodicData";
-    publishLightData: "xstate.after(30000)#(machine).sendPeriodicData";
+    connect: "" | "DISCONNECTED" | "xstate.after(10000)#(machine).connecting";
+    announceHomeAssistantEntity: "xstate.after(60000)#(machine).connected.periodicallyAnnounce.announce";
+    publishRssiData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    publishCalibrationStatusData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    publishBatteryData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    publishLightData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    disconnect: "xstate.after(10000)#(machine).disconnecting";
   };
   internalEvents: {
-    "xstate.after(60000)#(machine).periodicallyAnnounce.announce": {
-      type: "xstate.after(60000)#(machine).periodicallyAnnounce.announce";
+    "": { type: "" };
+    "xstate.after(10000)#(machine).connecting": {
+      type: "xstate.after(10000)#(machine).connecting";
     };
-    "xstate.after(30000)#(machine).sendPeriodicData": {
-      type: "xstate.after(30000)#(machine).sendPeriodicData";
+    "xstate.after(60000)#(machine).connected.periodicallyAnnounce.announce": {
+      type: "xstate.after(60000)#(machine).connected.periodicallyAnnounce.announce";
+    };
+    "xstate.after(30000)#(machine).connected.sendPeriodicData": {
+      type: "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    };
+    "xstate.after(10000)#(machine).disconnecting": {
+      type: "xstate.after(10000)#(machine).disconnecting";
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
-    receiveStateCommands: "done.invoke.(machine).receiveStateCommands:invocation[0]";
-    receivePositionCommands: "done.invoke.(machine).receivePositionCommands:invocation[0]";
+    listenToEvents: "done.invoke.(machine):invocation[0]";
+    receiveStateCommands: "done.invoke.(machine).connected.receiveStateCommands:invocation[0]";
+    receivePositionCommands: "done.invoke.(machine).connected.receivePositionCommands:invocation[0]";
   };
   missingImplementations: {
     actions: never;
@@ -38,17 +48,29 @@ export interface Typegen0 {
     delays: never;
   };
   eventsCausingServices: {
+    listenToEvents: "xstate.init";
     receiveStateCommands: "xstate.init";
     receivePositionCommands: "xstate.init";
   };
   eventsCausingGuards: {};
   eventsCausingDelays: {};
   matchesStates:
-    | "periodicallyAnnounce"
-    | "periodicallyAnnounce.announce"
-    | "receiveStateCommands"
-    | "receivePositionCommands"
-    | "sendPeriodicData"
-    | { periodicallyAnnounce?: "announce" };
+    | "init"
+    | "connecting"
+    | "connected"
+    | "connected.periodicallyAnnounce"
+    | "connected.periodicallyAnnounce.announce"
+    | "connected.receiveStateCommands"
+    | "connected.receivePositionCommands"
+    | "connected.sendPeriodicData"
+    | "disconnecting"
+    | {
+        connected?:
+          | "periodicallyAnnounce"
+          | "receiveStateCommands"
+          | "receivePositionCommands"
+          | "sendPeriodicData"
+          | { periodicallyAnnounce?: "announce" };
+      };
   tags: never;
 }

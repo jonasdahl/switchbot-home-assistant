@@ -24,6 +24,8 @@ type Event =
   | { type: "OPEN" }
   | { type: "CLOSE" }
   | { type: "PAUSE" }
+  | { type: "DISCONNECTED" }
+  | { type: "CONNECTED" }
   | { type: "DEVICE_AD_RECEIVED"; advertisement: Advertisement }
   | { type: "SET_POSITION"; position: number };
 
@@ -39,53 +41,80 @@ export const curtainMachine = createMachine(
     },
     tsTypes: {} as import("./curtain-machine.typegen").Typegen0,
 
-    type: "parallel",
+    initial: "init",
+    invoke: { src: "listenToEvents" },
     states: {
-      periodicallyAnnounce: {
-        initial: "announce",
+      init: { always: "connecting" },
+      connecting: {
+        entry: "connect",
+        after: { 10_000: "connecting" },
+        on: { CONNECTED: "connected", DISCONNECTED: "connecting" },
+      },
+      connected: {
+        type: "parallel",
         states: {
-          announce: {
-            entry: "announceHomeAssistantEntity",
-            after: { 60_000: "announce" },
+          periodicallyAnnounce: {
+            initial: "announce",
+            states: {
+              announce: {
+                entry: "announceHomeAssistantEntity",
+                after: { 60_000: "announce" },
+              },
+            },
+          },
+          receiveStateCommands: {
+            invoke: { src: "receiveStateCommands" },
+          },
+          receivePositionCommands: {
+            invoke: { src: "receivePositionCommands" },
+          },
+          sendPeriodicData: {
+            entry: [
+              "publishRssiData",
+              "publishCalibrationStatusData",
+              "publishBatteryData",
+              "publishLightData",
+            ],
+            after: { 30_000: "sendPeriodicData" },
           },
         },
-      },
-      receiveStateCommands: {
-        invoke: { src: "receiveStateCommands" },
-      },
-      receivePositionCommands: {
-        invoke: { src: "receivePositionCommands" },
-      },
-      sendPeriodicData: {
-        entry: [
-          "publishRssiData",
-          "publishCalibrationStatusData",
-          "publishBatteryData",
-          "publishLightData",
-        ],
-        after: { 30_000: "sendPeriodicData" },
-      },
-    },
 
-    on: {
-      DEVICE_AD_RECEIVED: {
-        actions: [
-          "publishPositionData",
-          "saveRssiInContext",
-          "saveCalibrationInContext",
-          "saveBatteryInContext",
-          "saveLightDataInContext",
-        ],
-      },
+        on: {
+          DEVICE_AD_RECEIVED: {
+            actions: [
+              "publishPositionData",
+              "saveRssiInContext",
+              "saveCalibrationInContext",
+              "saveBatteryInContext",
+              "saveLightDataInContext",
+            ],
+          },
 
-      OPEN: { actions: "open" },
-      CLOSE: { actions: "close" },
-      PAUSE: { actions: "pause" },
-      SET_POSITION: { actions: "moveToPosition" },
+          OPEN: { actions: "open" },
+          CLOSE: { actions: "close" },
+          PAUSE: { actions: "pause" },
+          SET_POSITION: { actions: "moveToPosition" },
+          CONNECTED: "connected",
+          DISCONNECTED: "connecting",
+        },
+      },
+      disconnecting: {
+        entry: "disconnect",
+        after: { 10_000: "disconnecting" },
+        on: { DISCONNECTED: "connecting", CONNECTED: "connected" },
+      },
     },
   },
   {
     actions: {
+      connect: (c) => {
+        c.switchbotDevice.connect();
+      },
+
+      disconnect: (c) => {
+        c.switchbotDevice.disconnect();
+      },
+
       open: async ({ switchbotDevice }) => {
         tryRepeatedly(() => switchbotDevice.open()).catch((e) =>
           logger.error(e)
@@ -338,6 +367,17 @@ export const curtainMachine = createMachine(
       },
     },
     services: {
+      listenToEvents: (c) => (send) => {
+        c.switchbotDevice.ondisconnect = () => {
+          logger.info("Disconnected from %s", c.switchbotDevice.id);
+          send({ type: "DISCONNECTED" });
+        };
+        c.switchbotDevice.onconnect = () => {
+          logger.info("Connected to %s", c.switchbotDevice.id);
+          send({ type: "CONNECTED" });
+        };
+      },
+
       receiveStateCommands:
         ({ homeAssistantMqtt, switchbotDevice }, e) =>
         (send) => {

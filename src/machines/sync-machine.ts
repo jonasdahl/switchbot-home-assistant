@@ -35,14 +35,15 @@ export const syncMachine = createMachine(
       },
       idle: {
         invoke: { src: "scan", onDone: { target: "done" } },
-        on: {
-          DEVICE_AD_RECEIVED: [
-            { cond: "actorIsKnown", actions: "handleDeviceAdvertisement" },
-          ],
-        },
+        after: { 60_000: "discoverDevices" },
       },
       done: { type: "final" },
       error: { type: "final" },
+    },
+    on: {
+      DEVICE_AD_RECEIVED: [
+        { cond: "actorIsKnown", actions: "handleDeviceAdvertisement" },
+      ],
     },
   },
   {

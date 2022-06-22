@@ -1,7 +1,10 @@
 import noble from "@abandonware/noble";
-import { createMachine } from "xstate";
+import { createMachine, send } from "xstate";
 
-type Event = { type: "POWERED_ON" } | { type: "POWERED_OFF" };
+type Event =
+  | { type: "POWERED_ON" }
+  | { type: "POWERED_OFF" }
+  | { type: "RESET" };
 
 export const bluetoothControllerMachine = createMachine(
   {
@@ -25,8 +28,13 @@ export const bluetoothControllerMachine = createMachine(
       },
       on: {
         entry: "onPoweredOn",
-        on: { POWERED_OFF: "off" },
-        invoke: { src: "discovery", onDone: "error", onError: "error" },
+        on: { POWERED_OFF: "off", RESET: { actions: "reset" } },
+        invoke: {
+          id: "discovery",
+          src: "discovery",
+          onDone: "error",
+          onError: "error",
+        },
       },
       off: { entry: "onPoweredOff", on: { POWERED_ON: "on" } },
       error: { type: "final", entry: "onError" },
@@ -38,6 +46,7 @@ export const bluetoothControllerMachine = createMachine(
       onPoweredOff: () => {},
       onPoweredOn: () => {},
       onStarted: () => {},
+      reset: send({ type: "RESET" }, { to: "discovery" }),
     },
     guards: {
       stateIsPoweredOff: (c) => c.noble.state === "poweredOff",

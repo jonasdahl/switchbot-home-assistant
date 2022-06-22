@@ -10,7 +10,8 @@ import {
 type Event =
   | { type: "PERIPHERAL_DISCOVERED"; peripheral: Peripheral }
   | { type: "SCAN_STARTED" }
-  | { type: "SCAN_STOPPED" };
+  | { type: "SCAN_STOPPED" }
+  | { type: "RESET" };
 
 export const createDiscoveryMachine = ({
   getPeripheralMachine,
@@ -41,6 +42,7 @@ export const createDiscoveryMachine = ({
       type: "parallel",
       entry: "onStart",
       exit: "onExit",
+      context: { noble, peripherals: {} },
       invoke: { src: "eventListener" },
       states: {
         logger: {
@@ -59,7 +61,6 @@ export const createDiscoveryMachine = ({
               entry: "onScanningStarted",
               exit: "onScanningStopped",
               invoke: { src: "scanning", onError: "error" },
-              after: { 20_000: "stoppingScan" },
               on: {
                 PERIPHERAL_DISCOVERED: [
                   {
@@ -69,17 +70,22 @@ export const createDiscoveryMachine = ({
                       "saveDiscoveredPeripheral",
                     ],
                   },
+                  {
+                    cond: "peripheralIsKnown",
+                    actions: "updatePeripheral",
+                  },
                 ],
               },
             },
             stoppingScan: {
               invoke: { src: "stopScan", onDone: "waiting", onError: "error" },
             },
-            waiting: { after: { 60_000: "startingScan" } },
+            waiting: { after: { 1_000: "startingScan" } },
           },
           on: {
             SCAN_STARTED: ".scanning",
             SCAN_STOPPED: ".waiting",
+            RESET: { actions: "resetAllPeripherals" },
           },
         },
       },
@@ -91,8 +97,20 @@ export const createDiscoveryMachine = ({
           const id = `${peripheral.id}`;
           return !(id in c.peripherals);
         },
+        peripheralIsKnown: (c, e) => {
+          const peripheral = e.peripheral;
+          const id = `${peripheral.id}`;
+          return !!(id in c.peripherals);
+        },
       },
       actions: {
+        resetAllPeripherals: (c) => {
+          Object.values(c.peripherals)
+            .map((v) => v.actor)
+            .forEach((actor) => {
+              actor?.send({ type: "RESET" });
+            });
+        },
         logDevices: () => {},
         onScanningStarted: () => {},
         onScanningStopped: () => {},
@@ -115,6 +133,15 @@ export const createDiscoveryMachine = ({
             },
           };
         }),
+        updatePeripheral: (c, e) => {
+          const id = `${e.peripheral.id}`;
+          const registryEntry = c.peripherals[id];
+          const actor = registryEntry?.actor;
+          if (!actor) {
+            return;
+          }
+          actor.send({ type: "UPDATE_PERIPHERAL", peripheral: e.peripheral });
+        },
         onPeripheralDiscovered: () => {},
       },
       services: {
@@ -132,7 +159,7 @@ export const createDiscoveryMachine = ({
             c.noble.removeListener("scanStop", onScanStopped);
           };
         },
-        startScan: async (c) => await c.noble.startScanningAsync([], false),
+        startScan: async (c) => await c.noble.startScanningAsync([], true),
         stopScan: async (c) => await c.noble.stopScanningAsync(),
         scanning: (_) => (send) => {
           const handler = (peripheral: Peripheral) => {

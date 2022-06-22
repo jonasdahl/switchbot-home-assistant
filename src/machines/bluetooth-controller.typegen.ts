@@ -3,29 +3,28 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   eventsCausingActions: {
+    reset: "RESET";
     onStarted: "xstate.init";
     onPoweredOn: "POWERED_ON" | "";
     onPoweredOff: "POWERED_OFF" | "";
-    onError:
-      | "done.invoke.(machine).on:invocation[0]"
-      | "error.platform.(machine).on:invocation[0]";
+    onError: "done.invoke.discovery" | "error.platform.discovery";
   };
   internalEvents: {
     "": { type: "" };
-    "done.invoke.(machine).on:invocation[0]": {
-      type: "done.invoke.(machine).on:invocation[0]";
+    "done.invoke.discovery": {
+      type: "done.invoke.discovery";
       data: unknown;
       __tip: "See the XState TS docs to learn how to strongly type this.";
     };
-    "error.platform.(machine).on:invocation[0]": {
-      type: "error.platform.(machine).on:invocation[0]";
+    "error.platform.discovery": {
+      type: "error.platform.discovery";
       data: unknown;
     };
     "xstate.init": { type: "xstate.init" };
   };
   invokeSrcNameMap: {
     listenForStateChanges: "done.invoke.(machine):invocation[0]";
-    discovery: "done.invoke.(machine).on:invocation[0]";
+    discovery: "done.invoke.discovery";
   };
   missingImplementations: {
     actions: never;

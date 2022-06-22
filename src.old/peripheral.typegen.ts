@@ -10,7 +10,9 @@ export interface Typegen0 {
     serviceDiscoveryError: "error.platform.(machine).connected.discoveringServices:invocation[0]";
     peripheralStarted: "xstate.init";
     connected: "done.invoke.(machine).connecting:invocation[0]";
-    serviceDiscoveryStarted: "done.invoke.(machine).connected.discoveringServices:invocation[0]";
+    serviceDiscoveryStarted:
+      | "done.invoke.(machine).connecting:invocation[0]"
+      | "done.invoke.(machine).connected.discoveringServices:invocation[0]";
   };
   internalEvents: {
     "error.platform.(machine).connecting:invocation[0]": {
@@ -57,7 +59,9 @@ export interface Typegen0 {
   eventsCausingServices: {
     eventListener: "xstate.init";
     connect: "" | "xstate.after(10000)#(machine).disconnected";
-    discovery: "done.invoke.(machine).connected.discoveringServices:invocation[0]";
+    discovery:
+      | "done.invoke.(machine).connecting:invocation[0]"
+      | "done.invoke.(machine).connected.discoveringServices:invocation[0]";
     disconnect: "xstate.init";
   };
   eventsCausingGuards: {};

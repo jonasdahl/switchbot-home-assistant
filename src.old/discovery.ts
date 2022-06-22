@@ -73,7 +73,9 @@ export const discoveryMachine = createMachine(
         if (id in c.peripherals) {
           return c;
         }
-        const actor = spawn(peripheralMachine.withContext({ peripheral }));
+        const actor = spawn(
+          peripheralMachine.withContext({ peripheral, services: {} })
+        );
         return {
           peripherals: {
             ...c.peripherals,

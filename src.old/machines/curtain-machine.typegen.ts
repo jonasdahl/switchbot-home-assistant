@@ -13,11 +13,21 @@ export interface Typegen0 {
     pause: "PAUSE";
     moveToPosition: "SET_POSITION";
     connect: "" | "DISCONNECTED" | "xstate.after(10000)#(machine).connecting";
-    announceHomeAssistantEntity: "xstate.after(60000)#(machine).connected.periodicallyAnnounce.announce";
-    publishRssiData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
-    publishCalibrationStatusData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
-    publishBatteryData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
-    publishLightData: "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    announceHomeAssistantEntity:
+      | "CONNECTED"
+      | "xstate.after(60000)#(machine).connected.periodicallyAnnounce.announce";
+    publishRssiData:
+      | "CONNECTED"
+      | "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    publishCalibrationStatusData:
+      | "CONNECTED"
+      | "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    publishBatteryData:
+      | "CONNECTED"
+      | "xstate.after(30000)#(machine).connected.sendPeriodicData";
+    publishLightData:
+      | "CONNECTED"
+      | "xstate.after(30000)#(machine).connected.sendPeriodicData";
     disconnect: "xstate.after(10000)#(machine).disconnecting";
   };
   internalEvents: {
@@ -49,8 +59,8 @@ export interface Typegen0 {
   };
   eventsCausingServices: {
     listenToEvents: "xstate.init";
-    receiveStateCommands: "xstate.init";
-    receivePositionCommands: "xstate.init";
+    receiveStateCommands: "CONNECTED";
+    receivePositionCommands: "CONNECTED";
   };
   eventsCausingGuards: {};
   eventsCausingDelays: {};

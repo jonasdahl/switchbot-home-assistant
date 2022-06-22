@@ -3,8 +3,10 @@
 export interface Typegen0 {
   "@@xstate/typegen": true;
   eventsCausingActions: {
+    resetAllPeripherals: "RESET";
     onPeripheralDiscovered: "PERIPHERAL_DISCOVERED";
     saveDiscoveredPeripheral: "PERIPHERAL_DISCOVERED";
+    updatePeripheral: "PERIPHERAL_DISCOVERED";
     onExit: "xstate.init";
     onStart: "xstate.init";
     logDevices: "xstate.after(DISCOVERY_LOGGING_INTERVAL)#(machine).logger";
@@ -37,11 +39,8 @@ export interface Typegen0 {
       data: unknown;
     };
     "": { type: "" };
-    "xstate.after(60000)#(machine).discovery.waiting": {
-      type: "xstate.after(60000)#(machine).discovery.waiting";
-    };
-    "xstate.after(20000)#(machine).discovery.scanning": {
-      type: "xstate.after(20000)#(machine).discovery.scanning";
+    "xstate.after(1000)#(machine).discovery.waiting": {
+      type: "xstate.after(1000)#(machine).discovery.waiting";
     };
     "xstate.init": { type: "xstate.init" };
   };
@@ -60,11 +59,12 @@ export interface Typegen0 {
   eventsCausingServices: {
     eventListener: "xstate.init";
     scanning: "SCAN_STARTED";
-    startScan: "" | "xstate.after(60000)#(machine).discovery.waiting";
-    stopScan: "xstate.after(20000)#(machine).discovery.scanning";
+    startScan: "" | "xstate.after(1000)#(machine).discovery.waiting";
+    stopScan: "xstate.init";
   };
   eventsCausingGuards: {
     peripheralIsNotKnown: "PERIPHERAL_DISCOVERED";
+    peripheralIsKnown: "PERIPHERAL_DISCOVERED";
   };
   eventsCausingDelays: {
     DISCOVERY_LOGGING_INTERVAL: "xstate.init";

@@ -1,5 +1,11 @@
 import { Parser } from "binary-parser";
 
+export type ParserReturn<T extends TypedParser<any>> = T extends TypedParser<
+  infer U
+>
+  ? U
+  : never;
+
 export class TypedParser<T> {
   parser = new Parser().endianness("big");
 
@@ -9,13 +15,17 @@ export class TypedParser<T> {
     }
     return this;
   }
-  bit1<TName extends string>(name: TName) {
+  bit1<TName extends string>(
+    name: TName
+  ): TypedParser<T & { [k in TName]: number }> {
     this.parser.bit1(name);
-    return this as any as TypedParser<T & { [k in TName]: number }>;
+    return this as any;
   }
-  bit2<TName extends string>(name: TName) {
+  bit2<TName extends string>(
+    name: TName
+  ): TypedParser<T & { [k in TName]: number }> {
     this.parser.bit2(name);
-    return this as any as TypedParser<T & { [k in TName]: number }>;
+    return this as any;
   }
   bit3<TName extends string>(name: TName) {
     this.parser.bit3(name);

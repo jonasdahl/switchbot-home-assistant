@@ -159,7 +159,8 @@ export const createDiscoveryMachine = ({
             c.noble.removeListener("scanStop", onScanStopped);
           };
         },
-        startScan: async (c) => await c.noble.startScanningAsync([], true),
+        startScan: async (c) =>
+          await c.noble.startScanningAsync(undefined, true),
         stopScan: async (c) => await c.noble.stopScanningAsync(),
         scanning: (_) => (send) => {
           const handler = (peripheral: Peripheral) => {

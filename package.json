@@ -12,8 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "@abandonware/noble": "^1.9.2-15",
-    "@types/lodash": "^4.14.182",
-    "@types/node": "^17.0.36",
     "binary-parser": "^2.1.0",
     "dotenv": "16.0.1",
     "envalid": "^7.3.1",
@@ -27,6 +25,8 @@
   },
   "devDependencies": {
     "pino-pretty": "^7.6.1",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^17.0.36"
   }
 }

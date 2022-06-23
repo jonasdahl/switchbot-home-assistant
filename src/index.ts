@@ -30,10 +30,20 @@ controllerDevice
 
 const discoveryMachine = createDiscoveryMachine({
   getPeripheralMachine: ({ peripheral }) => {
-    if (peripheral.advertisement.localName !== "WoCurtain") {
-      return null;
+    logger.info(
+      "Getting machine for peripheral: %s. LocalName is: %s. Service UUIDs: %o",
+      peripheral.id,
+      peripheral.advertisement?.localName,
+      peripheral.advertisement?.serviceUuids ?? null
+    );
+    if (
+      peripheral.advertisement?.serviceUuids?.includes(
+        "cba20d00224d11e69fb80002a5d5c51b"
+      )
+    ) {
+      return createSwitchbotCurtainMachine({ hassClient, logger, peripheral });
     }
-    return createSwitchbotCurtainMachine({ hassClient, logger, peripheral });
+    return null;
   },
 })
   .withContext({ noble: noble, peripherals: {} })

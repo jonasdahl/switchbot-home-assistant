@@ -2,7 +2,7 @@ import noble from "@abandonware/noble";
 import { machineIdSync } from "node-machine-id";
 import { interpret } from "xstate";
 import { createSwitchbotCurtainMachine } from "./devices/switchbot-curtain";
-import { HassClient } from "./home-assistant-mqtt";
+import { HassClient } from "./hass-mqtt";
 import { logger } from "./logger";
 import { bluetoothControllerMachine } from "./machines/bluetooth-controller";
 import { createDiscoveryMachine } from "./machines/discovery";
@@ -10,18 +10,15 @@ import { createDiscoveryMachine } from "./machines/discovery";
 const hassClient = new HassClient();
 
 const id = machineIdSync(true);
-const bridgeDevice = hassClient.device("bluetooth-bridge-" + id);
-bridgeDevice
-  .setMetadata({
-    name: "Bluetooth Bridge",
-  })
+const controllerDevice = hassClient.device("bluetooth-controller-" + id);
+controllerDevice
+  .setMetadata({ name: "Bluetooth Controller" })
   .sensor("id")
   .setEntityMeta({ name: "Machine ID" })
   .announce()
   .reportState(id)
   .reportAvailability(true);
-
-bridgeDevice
+controllerDevice
   .button("restart")
   .setEntityMeta({ name: "Restart controller" })
   .announce()

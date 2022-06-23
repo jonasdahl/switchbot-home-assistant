@@ -1,7 +1,7 @@
 import { Peripheral } from "@abandonware/noble";
 import { Logger } from "pino";
 import { ContextFrom } from "xstate";
-import { HassClient } from "../home-assistant-mqtt";
+import { HassClient } from "../hass-mqtt";
 import { peripheralMachine } from "../machines/peripheral";
 
 export function createSwitchbotCurtainMachine({
@@ -226,13 +226,11 @@ function setupEntities(hassClient: HassClient, peripheral: Peripheral) {
     entityCategory: "diagnostic",
     enabledByDefault: false,
   });
-  device
-    .sensor(LIGHT_LEVEL_SENSOR_ID)
-    .setEntityMeta({
-      name: LIGHT_LEVEL_SENSOR_NAME,
-      unitOfMeasurement: "",
-      enabledByDefault: false,
-    });
+  device.sensor(LIGHT_LEVEL_SENSOR_ID).setEntityMeta({
+    name: LIGHT_LEVEL_SENSOR_NAME,
+    unitOfMeasurement: "",
+    enabledByDefault: false,
+  });
   device.sensor(FIRMWARE_VERSION_SENSOR_ID).setEntityMeta({
     name: FIRMWARE_VERSION_SENSOR_NAME,
     unitOfMeasurement: "",

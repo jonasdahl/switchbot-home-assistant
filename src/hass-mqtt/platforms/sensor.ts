@@ -9,8 +9,11 @@ export type SensorMeta = { unitOfMeasurement?: string };
 export class HassSensor extends HassEntity {
   stateTopic: string;
   configTopic: string;
-
   sensorMeta: SensorMeta = {};
+
+  lastState: null | number | string = null;
+  lastStateReport: null | Date = null;
+  stateReportTimeout = 30_000;
 
   constructor(mqttClient: MqttClient, id: string, device: HassDevice) {
     super(mqttClient, id, device);
@@ -40,13 +43,24 @@ export class HassSensor extends HassEntity {
     return this;
   }
 
-  lastState: null | number | string = null;
+  setStateThrottleTimeout(timeout: number) {
+    this.stateReportTimeout = timeout;
+    return this;
+  }
 
   reportState(state: number | string) {
     if (this.lastState === state) {
       return this;
     }
     this.lastState = state;
+
+    if (
+      this.lastStateReport !== null &&
+      Date.now() - this.lastStateReport.getTime() < this.stateReportTimeout
+    ) {
+      return this;
+    }
+    this.lastStateReport = new Date();
     this.publish(
       this.stateTopic,
       typeof state === "number" ? JSON.stringify(state) : state

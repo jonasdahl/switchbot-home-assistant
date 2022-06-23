@@ -3,7 +3,7 @@ version: "3.7"
 services:
   switchbot-home-assistant:
     restart: unless-stopped
-    build: "."
+    build: ".."
     privileged: true
     network_mode: "host"
     environment:
